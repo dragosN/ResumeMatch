@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #e9eef3;
+  --ink: #0a1220;
+  --muted: #5a6678;
+  --line: #c5d0dc;
+  --panel: #f7fafc;
+  --signal: #d6452b;
+  --signal-ink: #fffaf8;
+  --match: #1a7a4c;
+  --gap: #c43b2a;
+  --review: #a65c00;
+  --nice: #1f5f8b;
+  --grid: rgba(15, 35, 60, 0.06);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-panel: var(--panel);
+  --color-signal: var(--signal);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    radial-gradient(900px 420px at 0% 0%, rgba(214, 69, 43, 0.08), transparent 60%),
+    radial-gradient(700px 380px at 100% 8%, rgba(31, 95, 139, 0.1), transparent 55%);
+  background-size: 28px 28px, 28px 28px, auto, auto;
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+}
+
+::selection {
+  background: rgba(214, 69, 43, 0.18);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes score-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.anim-rise {
+  animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-score {
+  animation: score-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-bar {
+  transform-origin: left center;
+  animation: bar-grow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.field {
+  width: 100%;
+  border: 0;
+  border-bottom: 1.5px solid var(--line);
+  background: transparent;
+  padding: 0.65rem 0;
+  font: inherit;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.field:focus {
+  border-color: var(--ink);
+}
+
+.field-area {
+  width: 100%;
+  min-height: 9rem;
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  padding: 0.85rem 1rem;
+  font: inherit;
+  font-size: 0.925rem;
+  line-height: 1.5;
+  color: var(--ink);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.field-area:focus {
+  border-color: var(--ink);
+  background: #fff;
+}
+
+.file-btn::file-selector-button {
+  margin-right: 0.85rem;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.file-btn::file-selector-button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
