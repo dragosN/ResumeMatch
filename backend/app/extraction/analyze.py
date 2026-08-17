@@ -1,7 +1,8 @@
-"""Day-1 analyze orchestration: ingest + extract; match/score stubbed."""
+"""Day-2 analyze orchestration: ingest + extract + match + score + summary."""
 
 from __future__ import annotations
 
+from app.config import get_settings
 from app.extraction.jd_parser import parse_jd
 from app.extraction.resume_parser import parse_resume
 from app.extraction.schemas import (
@@ -14,6 +15,9 @@ from app.extraction.schemas import (
     SkillMatch,
 )
 from app.llm.provider import ChatProvider, get_chat_provider
+from app.matching.scorer import compute_scores
+from app.matching.skill_matcher import match_skills
+from app.matching.summary import generate_summary
 
 
 def stub_analyze_response() -> AnalyzeResponse:
@@ -95,74 +99,42 @@ def analyze_texts(
     *,
     chat: ChatProvider | None = None,
 ) -> AnalyzeResponse:
-    """Extract profile + requirements; return response with matching stubbed for Day 1."""
+    """Extract profile + requirements, run layered matching, score, and summarize."""
+    settings = get_settings()
     provider = chat or get_chat_provider()
     profile = parse_resume(resume_text, provider)
     requirements = parse_jd(jd_text, provider)
 
-    # Placeholder scoring until Day 2 matching lands
-    matched = [
-        SkillMatch(
-            resume_skill=s,
-            jd_skill=s,
-            confidence=MatchConfidence.matched,
-            similarity=1.0,
-            reason="Exact string overlap (Day 1 stub matcher)",
-        )
-        for s in profile.skills
-        if s.lower() in {r.lower() for r in requirements.required_skills}
-    ]
-    matched_names = {m.jd_skill.lower() for m in matched}
-    missing_required = [
-        SkillMatch(jd_skill=s, confidence=MatchConfidence.missing)
-        for s in requirements.required_skills
-        if s.lower() not in matched_names
-        and s.lower() not in {p.lower() for p in profile.skills}
-    ]
-    missing_nth = [
-        SkillMatch(jd_skill=s, confidence=MatchConfidence.missing)
-        for s in requirements.nice_to_have_skills
-        if s.lower() not in {p.lower() for p in profile.skills}
-    ]
-
-    req_total = max(len(requirements.required_skills), 1)
-    overall = round(100.0 * (len(matched) / req_total), 1)
-
-    summary_bits = [
-        f"Extracted {len(profile.skills)} resume skills and "
-        f"{len(requirements.required_skills)} required JD skills.",
-        f"Exact-name overlap match score (stub): {overall}/100.",
-    ]
-    if profile.extraction_warnings:
-        summary_bits.append("Resume extraction warnings: " + "; ".join(profile.extraction_warnings))
-    if requirements.extraction_warnings:
-        summary_bits.append("JD extraction warnings: " + "; ".join(requirements.extraction_warnings))
-    if missing_required:
-        summary_bits.append(
-            "Missing required (exact-name stub): "
-            + ", ".join(m.jd_skill for m in missing_required)
-        )
-    summary_bits.append(
-        "Full semantic matching, weighted scoring, and LLM summary land on Day 2."
+    match = match_skills(
+        profile,
+        requirements,
+        chat=provider,
+        match_threshold=settings.match_threshold,
+        review_threshold=settings.review_threshold,
+        use_arbiter=settings.matching_use_arbiter,
+    )
+    overall, category_scores = compute_scores(match, profile, requirements)
+    summary = generate_summary(
+        match,
+        overall,
+        category_scores,
+        profile,
+        requirements,
+        provider,
     )
 
     return AnalyzeResponse(
-        overall_score=min(overall, 100.0),
-        category_scores=CategoryScores(
-            technical=min(overall, 100.0),
-            experience=50.0,
-            domain=50.0,
-            soft=50.0,
-        ),
-        matched_skills=matched,
-        missing_required=missing_required,
-        missing_nice_to_have=missing_nth,
-        overqualified=[],
-        review_band=[],
-        summary=" ".join(summary_bits),
+        overall_score=overall,
+        category_scores=category_scores,
+        matched_skills=match.matched_skills,
+        missing_required=match.missing_required,
+        missing_nice_to_have=match.missing_nice_to_have,
+        overqualified=match.overqualified,
+        review_band=match.review_band,
+        summary=summary,
         profile=profile,
         requirements=requirements,
         ats_flags=[],
         rewrite_suggestions=[],
-        matching_stubbed=True,
+        matching_stubbed=False,
     )

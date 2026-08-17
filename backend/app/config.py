@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     analyze_stub: bool = False
 
+    match_threshold: float = 0.85
+    review_threshold: float = 0.65
+    matching_use_arbiter: bool = True
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

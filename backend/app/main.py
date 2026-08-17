@@ -45,7 +45,7 @@ async def analyze(
     jd_url: Optional[str] = Form(None),
     jd_file: Optional[UploadFile] = File(None),
 ) -> AnalyzeResponse:
-    """Analyze resume vs one JD. Matching is stubbed on Day 1; extraction is live unless ANALYZE_STUB."""
+    """Analyze resume vs one JD. Extraction + layered matching unless ANALYZE_STUB."""
     if settings.analyze_stub:
         return stub_analyze_response()
 

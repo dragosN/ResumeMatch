@@ -1,0 +1,35 @@
+{"resume_skill": "React", "jd_skill": "React", "label": "match"}
+{"resume_skill": "React", "jd_skill": "React.js", "label": "match"}
+{"resume_skill": "React", "jd_skill": "ReactJS", "label": "match"}
+{"resume_skill": "JavaScript", "jd_skill": "JS", "label": "match"}
+{"resume_skill": "TypeScript", "jd_skill": "TS", "label": "match"}
+{"resume_skill": "Node.js", "jd_skill": "Node", "label": "match"}
+{"resume_skill": "PostgreSQL", "jd_skill": "Postgres", "label": "match"}
+{"resume_skill": "Kubernetes", "jd_skill": "K8s", "label": "match"}
+{"resume_skill": "AWS", "jd_skill": "Amazon Web Services", "label": "match"}
+{"resume_skill": "CI/CD", "jd_skill": "CICD", "label": "match"}
+{"resume_skill": "GraphQL", "jd_skill": "GQL", "label": "match"}
+{"resume_skill": "Next.js", "jd_skill": "NextJS", "label": "match"}
+{"resume_skill": "C#", "jd_skill": "CSharp", "label": "match"}
+{"resume_skill": "component-based UI development", "jd_skill": "React", "label": "match"}
+{"resume_skill": "REST APIs", "jd_skill": "REST", "label": "match"}
+{"resume_skill": "Python", "jd_skill": "Python", "label": "match"}
+{"resume_skill": "Docker", "jd_skill": "Docker", "label": "match"}
+{"resume_skill": "Java", "jd_skill": "JavaScript", "label": "no_match"}
+{"resume_skill": "JavaScript", "jd_skill": "Java", "label": "no_match"}
+{"resume_skill": "C", "jd_skill": "C++", "label": "no_match"}
+{"resume_skill": "C++", "jd_skill": "C#", "label": "no_match"}
+{"resume_skill": "MySQL", "jd_skill": "PostgreSQL", "label": "no_match"}
+{"resume_skill": "AWS", "jd_skill": "Azure", "label": "no_match"}
+{"resume_skill": "React", "jd_skill": "Angular", "label": "no_match"}
+{"resume_skill": "Python", "jd_skill": "Ruby", "label": "no_match"}
+{"resume_skill": "Swift", "jd_skill": "Kotlin", "label": "no_match"}
+{"resume_skill": "Redis", "jd_skill": "MongoDB", "label": "no_match"}
+{"resume_skill": "HTML", "jd_skill": "CSS", "label": "match"}
+{"resume_skill": "CSS", "jd_skill": "HTML", "label": "match"}
+{"resume_skill": "TypeScript", "jd_skill": "JavaScript", "label": "match"}
+{"resume_skill": "JavaScript", "jd_skill": "TypeScript", "label": "no_match"}
+{"resume_skill": "HTML5", "jd_skill": "HTML", "label": "match"}
+{"resume_skill": "CSS3", "jd_skill": "CSS", "label": "match"}
+{"resume_skill": "Machine Learning", "jd_skill": "MLOps", "label": "no_match"}
+{"resume_skill": "DevOps", "jd_skill": "SRE", "label": "no_match"}

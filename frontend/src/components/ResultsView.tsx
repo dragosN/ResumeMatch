@@ -49,7 +49,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
           className="text-xs text-[var(--muted)]"
           style={{ fontFamily: "var(--font-mono), monospace" }}
         >
-          Note — matching is stubbed (exact-name overlap). Semantic pipeline lands Day 2.
+          Note — stub response only. Uncheck “Use stub response” for live semantic matching.
         </p>
       )}
 
