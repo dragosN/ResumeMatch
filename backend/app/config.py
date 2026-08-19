@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     match_threshold: float = 0.85
     review_threshold: float = 0.65
     matching_use_arbiter: bool = True
+    generate_rewrites: bool = True
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -1,7 +1,5 @@
 /**
  * Zod schemas hand-mirrored from backend/app/extraction/schemas.py (Pydantic SoT).
- * Keeping these in sync across the TS/Python boundary is intentional Day-1 work;
- * Pydantic→Zod codegen is a known stretch improvement.
  */
 import { z } from "zod";
 
@@ -78,6 +76,23 @@ export const AnalyzeResponseSchema = z.object({
   matching_stubbed: z.boolean().default(false),
 });
 
+export const JdComparisonItemSchema = z.object({
+  label: z.string(),
+  overall_score: z.number().min(0).max(100),
+  summary: z.string(),
+  top_gaps: z.array(z.string()),
+  result: AnalyzeResponseSchema,
+});
+
+export const CompareResponseSchema = z.object({
+  ranked: z.array(JdComparisonItemSchema),
+  profile: ExtractedProfileSchema.nullable().optional(),
+});
+
 export type AnalyzeResponse = z.infer<typeof AnalyzeResponseSchema>;
+export type CompareResponse = z.infer<typeof CompareResponseSchema>;
+export type JdComparisonItem = z.infer<typeof JdComparisonItemSchema>;
 export type SkillMatch = z.infer<typeof SkillMatchSchema>;
 export type CategoryScores = z.infer<typeof CategoryScoresSchema>;
+export type AtsFlag = z.infer<typeof AtsFlagSchema>;
+export type RewriteSuggestion = z.infer<typeof RewriteSuggestionSchema>;

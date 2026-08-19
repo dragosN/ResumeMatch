@@ -84,5 +84,21 @@ class AnalyzeResponse(BaseModel):
     requirements: Optional[ExtractedRequirements] = None
     ats_flags: list[AtsFlag] = Field(default_factory=list)
     rewrite_suggestions: list[RewriteSuggestion] = Field(default_factory=list)
-    # Day 1: when match/score is stubbed
     matching_stubbed: bool = False
+
+
+class JdComparisonItem(BaseModel):
+    """One JD in a multi-JD compare run."""
+
+    label: str
+    overall_score: float = Field(ge=0, le=100)
+    summary: str = ""
+    top_gaps: list[str] = Field(default_factory=list)
+    result: AnalyzeResponse
+
+
+class CompareResponse(BaseModel):
+    """Ranked comparison of one resume against up to 3 JDs."""
+
+    ranked: list[JdComparisonItem] = Field(default_factory=list)
+    profile: Optional[ExtractedProfile] = None

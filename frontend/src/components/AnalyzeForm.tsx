@@ -1,13 +1,28 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { analyzeResumeJd } from "@/lib/api";
-import type { AnalyzeResponse } from "@/lib/schemas";
+import { FormEvent, useEffect, useState } from "react";
 import { ResultsView } from "@/components/ResultsView";
-
-type JdSlot = { text: string; url: string; file: File | null };
+import { ScoreHistory } from "@/components/ScoreHistory";
+import { isCompareMode, runAnalysis, type JdSlot } from "@/lib/api";
+import {
+  fingerprintResume,
+  historyFromCompare,
+  historyFromSingle,
+  loadHistory,
+  saveHistoryEntry,
+  type HistoryEntry,
+} from "@/lib/history";
+import type { AnalyzeResponse, CompareResponse } from "@/lib/schemas";
 
 const emptySlot = (): JdSlot => ({ text: "", url: "", file: null });
+
+function jdLabelFromSlot(slot: JdSlot, index: number): string {
+  const line = slot.text.trim().split("\n")[0]?.slice(0, 50);
+  if (line) return line;
+  if (slot.file?.name) return slot.file.name;
+  if (slot.url.trim()) return slot.url.trim();
+  return `JD ${index + 1}`;
+}
 
 export function AnalyzeForm() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -17,6 +32,13 @@ export function AnalyzeForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [compare, setCompare] = useState<CompareResponse | null>(null);
+  const [selectedCompareIndex, setSelectedCompareIndex] = useState(0);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  useEffect(() => {
+    setHistory(loadHistory());
+  }, []);
 
   function updateSlot(index: number, patch: Partial<JdSlot>) {
     setJdSlots((prev) => prev.map((s, i) => (i === index ? { ...s, ...patch } : s)));
@@ -35,20 +57,43 @@ export function AnalyzeForm() {
     setError(null);
     setLoading(true);
     setResult(null);
+    setCompare(null);
+
     try {
-      const data = await analyzeResumeJd({
+      const output = await runAnalysis({
         resumeFile,
         resumeText,
         jdSlots,
         useStub,
       });
-      setResult(data);
+
+      const fp = fingerprintResume(resumeText, resumeFile?.name);
+
+      if (output.mode === "compare") {
+        setCompare(output.compare);
+        setSelectedCompareIndex(0);
+        const best = output.compare.ranked[0]?.result ?? null;
+        setResult(best);
+        const entry = historyFromCompare(output.compare, fp);
+        setHistory(saveHistoryEntry(entry));
+      } else {
+        setResult(output.result);
+        const label = jdLabelFromSlot(jdSlots[0], 0);
+        const entry = historyFromSingle(output.result, label, fp);
+        setHistory(saveHistoryEntry(entry));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
   }
+
+  const compareMode = isCompareMode(jdSlots);
+  const activeResult =
+    compare && compare.ranked[selectedCompareIndex]
+      ? compare.ranked[selectedCompareIndex].result
+      : result;
 
   return (
     <div className="space-y-14">
@@ -129,8 +174,8 @@ export function AnalyzeForm() {
                     className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--muted)]"
                     style={{ fontFamily: "var(--font-mono), monospace" }}
                   >
-                    Source B{jdSlots.length > 1 ? `.${index + 1}` : ""}
-                    {index === 0 ? " · primary" : " · compare later"}
+                    JD {index + 1}
+                    {compareMode ? " · compare" : index === 0 ? " · primary" : ""}
                   </p>
                   {jdSlots.length > 1 && (
                     <button
@@ -177,6 +222,12 @@ export function AnalyzeForm() {
                 </div>
               </div>
             ))}
+
+            {compareMode && (
+              <p className="text-xs text-[var(--muted)]">
+                Two or more JDs filled — analysis will rank all roles and let you switch between them.
+              </p>
+            )}
           </section>
         </div>
 
@@ -196,7 +247,11 @@ export function AnalyzeForm() {
             className="inline-flex items-center justify-center bg-[var(--signal)] px-7 py-3 text-sm font-bold tracking-wide text-[var(--signal-ink)] transition-[transform,opacity] hover:opacity-95 active:translate-y-px disabled:opacity-55"
             style={{ fontFamily: "var(--font-display), sans-serif" }}
           >
-            {loading ? "Working…" : "Analyze match"}
+            {loading
+              ? "Working…"
+              : compareMode
+                ? "Compare roles"
+                : "Analyze match"}
           </button>
         </div>
       </form>
@@ -210,7 +265,21 @@ export function AnalyzeForm() {
         </p>
       )}
 
-      {result && <ResultsView result={result} />}
+      {activeResult && (
+        <ResultsView
+          result={activeResult}
+          compare={compare}
+          selectedCompareIndex={selectedCompareIndex}
+          onSelectCompare={(idx) => {
+            setSelectedCompareIndex(idx);
+            if (compare?.ranked[idx]) {
+              setResult(compare.ranked[idx].result);
+            }
+          }}
+        />
+      )}
+
+      <ScoreHistory entries={history} />
     </div>
   );
 }
